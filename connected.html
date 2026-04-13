@@ -1,130 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
     <title>QuickBooks Connected - OpenClaw</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #2ec771 0%, #27ae60 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .card {
-            background: white;
-            border-radius: 16px;
-            padding: 40px;
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-        }
-        .success-icon {
-            width: 80px;
-            height: 80px;
-            background: #2ec771;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 40px;
-            margin: 0 auto 20px;
-        }
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        .success-text {
-            color: #27ae60;
-            font-size: 18px;
-            margin-bottom: 30px;
-        }
-        .info-box {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: left;
-        }
-        .info-label {
-            font-size: 12px;
-            color: #7f8c8d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 5px;
-        }
-        .info-value {
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 14px;
-            color: #2c3e50;
-            word-break: break-all;
-            background: white;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #e9ecef;
-        }
-        .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            background: #0077c5;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            margin-top: 20px;
-        }
-        .btn:hover { background: #005a96; }
-        .footer {
-            margin-top: 30px;
-            font-size: 12px;
-            color: #adb5bd;
-        }
+        body { font-family: -apple-system, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .success { color: #28a745; font-size: 48px; text-align: center; }
+        .code-box { background: #f5f5f5; padding: 15px; border-radius: 5px; word-break: break-all; font-family: monospace; margin: 10px 0; }
+        .hidden { display: none; }
+        button { padding: 10px 20px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="success-icon">✓</div>
-        <h1>Successfully Connected!</h1>
-        <p class="success-text">OpenClaw can now access your QuickBooks data</p>
+    <div class="success">✓</div>
+    <h2>Successfully Connected!</h2>
+    <p>OpenClaw can now access your QuickBooks data.</p>
+    
+    <div id="token-section">
+        <h3>Copy this code and paste it in your chat:</h3>
+        <div class="code-box" id="code-display"></div>
+        <button onclick="copyCode()">Copy to Clipboard</button>
+        <p id="copy-status"></p>
         
-        <div class="info-box">
-            <div class="info-label">Connection Status</div>
-            <div class="info-value" style="color: #2ec771; font-weight: 600;">✓ Active</div>
-        </div>
-        
-        <div class="info-box">
-            <div class="info-label">What happens next?</div>
-            <p style="font-size: 14px; color: #495057; line-height: 1.6;">
-                Your admin will complete the setup using your Company ID. 
-                You'll receive a confirmation in Teams when invoice processing is ready.
-            </p>
-        </div>
-        
-        <a href="#" class="btn" onclick="window.close(); return false;">Close Window</a>
-        
-        <div class="footer">
-            <p>OpenClaw Invoice Processor</p>
-        </div>
+        <h4>Company ID (Realm ID):</h4>
+        <div class="code-box" id="realm-display"></div>
     </div>
     
+    <div id="error-section" class="hidden">
+        <p style="color: red;">Error: No authorization code found. Please try again.</p>
+    </div>
+
     <script>
-        // Capture realm ID from URL if present
         const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
         const realmId = params.get('realmId');
-        if (realmId) {
-            const infoBox = document.querySelector('.info-box');
-            infoBox.insertAdjacentHTML('afterend', `
-                <div class="info-box">
-                    <div class="info-label">Company ID (Realm ID)</div>
-                    <div class="info-value">${realmId}</div>
-                </div>
-            `);
+        
+        if (code) {
+            document.getElementById('code-display').textContent = code;
+            document.getElementById('realm-display').textContent = realmId || 'Not provided';
+        } else {
+            document.getElementById('token-section').classList.add('hidden');
+            document.getElementById('error-section').classList.remove('hidden');
+        }
+        
+        function copyCode() {
+            navigator.clipboard.writeText(code).then(() => {
+                document.getElementById('copy-status').textContent = 'Copied!';
+            });
         }
     </script>
 </body>
